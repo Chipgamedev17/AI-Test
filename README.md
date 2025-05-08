@@ -13,3 +13,6 @@ Dynamic Responses: Each answer you choose triggers unique reactions from the AI,
 Two Possible Endings: Depending on your choices, you may end up discovering that you’re not human or face a far more sinister outcome.
 
 Achievements to Unlock: Hidden achievements await you as you uncover the true nature of the AI and its motives.
+
+
+DISCLAIMER You may have to install VS Code (Visual Studio Code) ad then go to RUN->RUN WITHOUT DEBUGGING->(THE SMALL SEARCH BAR AT TOP AND CLICK ON CHROME OR WHATEVER BROWSER YOU USE or copy the code and paste it into VS Code
