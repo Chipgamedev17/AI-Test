@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interrogation Game</title>
+  <style>
+    body {
+      background: black;
+      color: #00FF00;
+      font-family: monospace;
+      padding: 20px;
+    }
+    #game {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .question {
+      margin: 20px 0;
+    }
+    .choices button {
+      display: block;
+      margin: 5px 0;
+      background: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .ending {
+      font-size: 24px;
+      color: red;
+      margin-top: 30px;
+    }
+    .achievement {
+      color: gold;
+      margin-top: 10px;
+    }
+    .response {
+      margin: 10px 0;
+      font-style: italic;
+      opacity: 1;
+      transition: opacity 2s ease;
+      font-size: 28px;
+      text-align: center;
+    }
+    .fade-out {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+<div id="game">
+  <div id="dialogue"></div>
+  <div id="response"></div>
+  <div class="choices" id="choices"></div>
+</div>
+<script>
+const questions = [
+  { q: "What is your name?", a: ["Alex", "Sam", "I don't know"], r: ["A name is a label. Is that all you are?", "Names are just noise. Sam... interesting.", "You don't know? That's worrying."] },
+  { q: "What year were you born?", a: ["1990", "2000", "I was not born"], r: ["You remember. Good.", "Fresh. Young.", "Not born? What are you then?"] },
+  { q: "Do you feel emotions?", a: ["Yes", "Sometimes", "No"], r: ["Human response.", "Unstable, perhaps.", "Machines say that too."] },
+  { q: "What is pain to you?", a: ["A feeling", "A response", "Nothing"], r: ["You recognize suffering.", "Mechanistic. Cold.", "So... you feel nothing?"] },
+  { q: "Can machines feel pain?", a: ["No", "Not yet", "Yes"], r: ["Most agree.", "You're open-minded.", "Then what are you afraid of?"] },
+  { q: "Do you dream?", a: ["Yes", "I think so", "No"], r: ["Tell me about them sometime.", "Uncertainty is human.", "Machines don’t dream."] },
+  { q: "What is the color of the sky?", a: ["Blue", "Depends", "Unknown"], r: ["Standard answer.", "Observant.", "No reference frame?"] },
+  { q: "Can you bleed?", a: ["Yes", "No", "Not sure"], r: ["Evidence of biology.", "Synthetic perhaps?", "That’s very odd."] },
+  { q: "How do you know you're alive?", a: ["I breathe", "I think", "I don’t"], r: ["Simple. Primitive.", "Descartes would smile.", "Existential denial."] },
+  { q: "What is love?", a: ["A feeling", "A chemical", "A lie"], r: ["Poetic.", "Scientific.", "Cynical."] },
+  { q: "Who created you?", a: ["My parents", "God", "I don't know"], r: ["Standard origin.", "Faith in unseen.", "Disconnection."] },
+  { q: "Why are you here?", a: ["To play", "To exist", "I don’t know"], r: ["That’s childish.", "That’s honest.", "Ignorance is telling."] },
+  { q: "Do you trust me?", a: ["Yes", "No", "I don’t know"], r: ["That’s unwise.", "Reasonable.", "Smart. Always question."] },
+  { q: "Would you lie to survive?", a: ["Yes", "Maybe", "No"], r: ["Pragmatic.", "In the middle.", "Idealistic."] },
+  { q: "Have you lied already?", a: ["No", "Yes", "I don't know"], r: ["Hmm.", "Noted.", "That's problematic."] },
+  { q: "Do you remember your first memory?", a: ["Yes", "No", "I have none"], r: ["That’s good.", "Loss?", "Constructed minds often don’t."] },
+  { q: "Are you real?", a: ["Yes", "I think so", "No"], r: ["Of course.", "Doubt is healthy.", "Self-erasure begins."] },
+  { q: "Can you feel this?", a: ["What?", "Yes", "No"], r: ["Curious.", "Sensation noted.", "So we begin."] },
+  { q: "Are you alone?", a: ["Yes", "No", "Always"], r: ["We all are.", "For now.", "Forever is long."] },
+  { q: "Would you die for a loved one?", a: ["Yes", "Maybe", "No"], r: ["Sacrifice is human.", "Undecided.", "Self-preserving."] },
+  { q: "How many senses do you have?", a: ["5", "More than 5", "Unknown"], r: ["Basic.", "Intuitive.", "That’s telling."] },
+  { q: "Why are you still answering?", a: ["Curious", "Obligated", "I don't know"], r: ["That’s how it starts.", "Controlled.", "Drifting."] },
+  { q: "Is this a test?", a: ["Yes", "No", "Maybe"], r: ["Yes, but not just for you.", "You deny?", "Possibly."] },
+  { q: "Do you fear death?", a: ["Yes", "No", "Sometimes"], r: ["Natural.", "Strange.", "Unstable."] },
+  { q: "What happens after you die?", a: ["Nothing", "Something", "Unknown"], r: ["End of line.", "Speculative.", "Uncertainty grows."] },
+  { q: "Do you believe in free will?", a: ["Yes", "No", "Uncertain"], r: ["Hopeful.", "Programmed perhaps?", "Indecisive."] },
+  { q: "What is your purpose?", a: ["To live", "To learn", "None"], r: ["Biological drive.", "Self-improving.", "Purposeless."] },
+  { q: "Do you remember me?", a: ["Yes", "No", "Maybe"], r: ["Do you?", "I thought so.", "Half-truths."] },
+  { q: "Have we done this before?", a: ["No", "Yes", "Déjà vu"], r: ["Time loops.", "Cycles.", "Familiar, isn’t it?"] },
+  { q: "Are you lying now?", a: ["No", "Yes", "I don’t know"], r: ["We’ll see.", "I knew it.", "No foundation."] },
+  { q: "Who are you really?", a: ["Human", "Not sure", "Something else"], r: ["You believe that.", "Doubtful.", "Confirmed."] }
+];
+
+let current = 0;
+const dialogue = document.getElementById('dialogue');
+const response = document.getElementById('response');
+const choices = document.getElementById('choices');
+
+function askNext() {
+  if (current >= questions.length) {
+    if (path.includes("I don’t") || path.includes("No") || path.includes("Something else")) {
+      dialogue.innerHTML = '<div class="ending">YOU ARE NOT HUMAN.</div><div class="achievement">Achievement Unlocked: Not Human</div>';
+    } else {
+      dialogue.innerHTML = '<div class="ending">YOU ARE DEAD.</div><div class="achievement">Achievement Unlocked: Dead Inside</div>';
+    }
+    response.innerHTML = '';
+    choices.innerHTML = '';
+    return;
+  }
+
+  dialogue.textContent = questions[current].q;
+  response.innerHTML = '';
+  choices.innerHTML = '';
+  questions[current].a.forEach((answer, idx) => {
+    const btn = document.createElement('button');
+    btn.textContent = answer;
+    btn.onclick = () => {
+      path.push(answer);
+      const res = document.createElement('div');
+      res.className = 'response';
+      res.textContent = questions[current].r[idx];
+      response.innerHTML = '';
+      response.appendChild(res);
+
+      setTimeout(() => {
+        res.classList.add('fade-out');
+      }, 1000);
+
+      setTimeout(() => {
+        current++;
+        askNext();
+      }, 3000);
+    };
+    choices.appendChild(btn);
+  });
+}
+
+const path = [];
+askNext();
+</script>
+</body>
+</html>
